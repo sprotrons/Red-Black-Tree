@@ -213,9 +213,6 @@ public:
             y = NULL;
         }
         // TODO
-        z->set_left(NULL);
-        z->set_right(NULL);
-        z->set_color(RED);
         if(root_ == NULL) {
         	root_ = z;
         	z->set_parent(NULL);
