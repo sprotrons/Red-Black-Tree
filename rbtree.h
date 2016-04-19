@@ -204,7 +204,7 @@ public:
      */
     void insert(const iterator &it, const std::pair<K, V> &key_value) {
         Node<K, V> *x, *y;
-        RedBlackNode<K, V> *z = new RedBlackNode<K, V>;
+        RedBlackNode<K, V> *z = new RedBlackNode(key_value.first, key_value.second);
         if (it != end()) {
             x = it.node_ptr;
             y = x->parent();
@@ -213,7 +213,6 @@ public:
             y = NULL;
         }
         // TODO
-        z->key_value() = key_value;
         z->set_left(NULL);
         z->set_right(NULL);
         z->set_color(RED);
