@@ -19,6 +19,9 @@
 #include <sstream>
 #include <algorithm>
 #include <utility>
+#include <iostream>
+
+using namespace std;
 
 // Forward declaration
 template <typename K, typename V>
@@ -203,8 +206,8 @@ public:
      * insert the node. If it == end(), the search starts at the root.
      */
     void insert(const iterator &it, const std::pair<K, V> &key_value) {
-        Node<K, V> *x, *y;
-        RedBlackNode<K, V> *z = new RedBlackNode(key_value.first, key_value.second);
+    	Node<K, V> *x, *y;
+        RedBlackNode<K, V> *z = new RedBlackNode<K, V>(key_value.first, key_value.second);
         if (it != end()) {
             x = it.node_ptr;
             y = x->parent();
@@ -213,19 +216,20 @@ public:
             y = NULL;
         }
         // TODO
+        tree_exception("WARNING");
         if(root_ == NULL) {
         	root_ = z;
         	z->set_parent(NULL);
         }
         else {
         	while(x != NULL) {
-        		x = y;
-        		if(x->key() < z->key()) { x = x->right(); }
-        		else { x = x->left(); }
+        		y = x;
+        		if(z->key() < x->key()) { x = x->left(); }
+        		else { x = x->right(); }
         	}
-        	z->set_parent(x);
-        	if(z->key() < z->key()) { x->set_right(z); }
-        	else { x->set_left(z); }
+        	z->set_parent(y);
+        	if(y->key() < z->key()) { y->set_right(z); }
+        	else { y->set_left(z); }
         }
         insert_fixup(z);
     }
@@ -234,6 +238,7 @@ public:
      * Inserts a key-value pair into the red-black tree.
      */
     void insert(const K &key, const V &value) {
+    	cout << "here" << endl;
         iterator e = end();
         insert(e, std::pair<K, V>(key, value));
     }
@@ -378,10 +383,7 @@ private:
     void insert_fixup(RedBlackNode<K, V> *z) {
         // TODO
     	RedBlackNode<K, V> *u;
-    	if(root_ == z) {
-    		z->set_color(BLACK);
-    	}
-    	while(z->parent() != NULL && z->parent()->color() == RED) {
+    	while(z->parent() != NULL || z->parent()->color() == RED) {
     		RedBlackNode<K, V> *g = z->parent()->parent();
     		if(g->left() == z->parent()) {
     			if(g->right() != NULL) {
@@ -424,8 +426,8 @@ private:
     			}
     		}
         	// Last line below
-        	root_->set_color(BLACK);
     	}
+    	root_->set_color(BLACK);
     }
 
     /**
@@ -467,10 +469,10 @@ private:
     int height(Node<K, V> *node) const {
         // TODO
     	if(node == NULL) { return -1; }
-		int right_height = height(node->right());
-		int left_height = height(node->left());
-		if(left_height > right_height) { return 1 + left_height; }
-		else { return 1 + right_height; }
+    	int right = height(node->right());
+    	int left = height(node->left());
+    	if(left > right) { return left + 1; }
+    	else { return right + 1; }
     }
 
     /**
