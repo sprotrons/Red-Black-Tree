@@ -195,7 +195,7 @@ public:
             try {
                 insert(elements[i].first, elements[i].second);
             } catch (const tree_exception &te) {
-                std::cerr << "Warning: " << te.what() << std::endl;
+                cout << "Warning: Attempt to insert dublicate key: '"<<elements[i]<<"'." << endl;
             }
         }
     }
@@ -214,7 +214,6 @@ public:
     	}
     	Node<K, V> *x, *y;
     	RedBlackNode<K, V> *z = new RedBlackNode<K, V>(key_value.first, key_value.second);
-    	size_++;
 		if (it != end()) {
 			x = it.node_ptr;
 			y = x->parent();
@@ -243,6 +242,7 @@ public:
         }
 		//cout << "fixup" << endl;
         insert_fixup(z);
+        size++;
     }
 
     /**
@@ -511,12 +511,15 @@ private:
      */
     size_t internal_node_count(Node<K, V> *node) const {
         // TODO
-        size_t count;
-    	if(((node->left() == NULL) && (node->right() == NULL)) || (node->parent() == NULL)) { return 0; }
-    	if((node->left() != NULL) || (node->right() != NULL)) { count++; }
-    	internal_node_count(node->right());
-    	internal_node_count(node->left());
-    	return count;
+        if( node->parent()== NULL && node->right()== NULL && node->left()==NULL ){
+        	return 0;
+        }
+        if( node->right()==NULL && node->left()==NULL ){
+        	return 0;
+        }
+        else{
+        	return 1+internal_node_count(node->right())+internal_node_count(node->left());
+        }
     }
 
     /**
