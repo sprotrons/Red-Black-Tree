@@ -21,8 +21,6 @@
 #include <utility>
 #include <iostream>
 
-using namespace std;
-
 // Forward declaration
 template <typename K, typename V>
 class RedBlackTree;
@@ -195,7 +193,7 @@ public:
             try {
                 insert(elements[i].first, elements[i].second);
             } catch (const tree_exception &te) {
-                cout << "Warning: Attempt to insert dublicate key: '"<<elements[i]<<"'." << endl;
+                std::cerr << "Warning: '"<<te.what()<< std::endl;
             }
         }
     }
@@ -208,10 +206,6 @@ public:
     void insert(const iterator &it, const std::pair<K, V> &key_value) {
     	//cout << "start insert" << endl;
     	K key = key_value.first;
-    	if(find(key) != end()) {
-    		cout << "Warning: Attempt to insert dublicate key: '"<<key<<"'." << endl;
-    		return;
-    	}
     	Node<K, V> *x, *y;
     	RedBlackNode<K, V> *z = new RedBlackNode<K, V>(key_value.first, key_value.second);
 		if (it != end()) {
@@ -224,25 +218,25 @@ public:
 		}
 		// TODO
 		//cout << "TODO" << endl;
-		if(root_ == NULL) {
-			root_ = z;
-			z->set_parent(NULL);
-        }
-        else {
-        	//cout << "start loop" << endl;
-        	while(x != NULL) {
+        //cout << "start loop" << endl;
+        while(x != NULL) {
         		y = x;
-        		if(z->key() < x->key()) { x = x->left(); }
-        		else { x = x->right(); }
+
+        		if(z->key() == x->key()) {
+        			std::ostringstream ss;
+        			ss << x->key();
+        			throw tree_exception("Attempt to insert duplicat key '"+ss.str()+"'.");
+        		}
+        		else { (x = z->key() < x->key()) ? x->left() : x->right(); }
         	}
         	//cout << "set z" << endl;
         	z->set_parent(y);
         	if(y->key() < z->key()) { y->set_right(z); }
         	else { y->set_left(z); }
-        }
+
 		//cout << "fixup" << endl;
         insert_fixup(z);
-        size++;
+        size_++;
     }
 
     /**
@@ -265,7 +259,7 @@ public:
      * Returns the height of the red-black tree.
      */
     int height() const {
-        return height(root_);
+        return height(root_)-1;
     }
 
     /**
@@ -385,6 +379,7 @@ private:
     	delete_tree(n->left());
     	delete_tree(n->right());
     	delete n;
+    	size_--;
     }
 
     /**
@@ -484,11 +479,8 @@ private:
      */
     int height(Node<K, V> *node) const {
         // TODO
-    	if(node == NULL) { return -1; }
-    	int right = height(node->right());
-    	int left = height(node->left());
-    	if(left > right) { return left + 1; }
-    	else { return right + 1; }
+    	if(node=NULL) return 0;
+    	return 1+std::max(height(node->left()),height(node->right()));
     }
 
     /**
@@ -511,12 +503,9 @@ private:
      */
     size_t internal_node_count(Node<K, V> *node) const {
         // TODO
-        if(node->parent()==NULL){
-        	return count_interior_nodes(node->left())+count_interior_nodes(node->right());
-        }elif(node->left() != NULL || node->right() != NULL ); {
-        	return count_interior_nodes(node->left())+count_interior_nodes(node->right())+1;
-        }
-
+        if(node==NULL)return 0;
+        else if(node->left() != NULL or node->right() != NULL) return 1+ internal_node_count(node->left())+internal_node_count(node->right());
+        return 0;
     }
 
     /**
@@ -527,17 +516,10 @@ private:
      */
     int diameter(Node<K, V> *node) const {
         // TODO
-    	int diam, sum;
-    	if(node == NULL) { return 0; }
-		int left_height = height(node->left());
-		int right_height = height(node->right());
-		int left_diameter = diameter(node->left());
-		int right_diameter = diameter(node->right());
-		if(left_diameter > right_diameter) { diam = left_diameter; }
-		else { diam = right_diameter; }
-		sum = left_height + right_height + 1;
-		if(sum > diam) { return sum; }
-		else { return diam; }
+    	if(node==NULL){
+    		return 0;
+    	}
+    	return std::max(height(node->left())+ height(node->right()),std::max(diameter(node->left()),diameter(node->right())) );
     }
 
     /**
@@ -552,7 +534,6 @@ private:
     }
 
     size_t null_count() const {
-    	cout<<endl<<"Null count: "<<null_count(root_)<<endl;
         return null_count(root_);
     }
 
@@ -583,10 +564,7 @@ private:
     size_t sum_levels(Node<K, V> *node, size_t level) const {
         // TODO
     	if(node==NULL){return 0;}
-    	sum_levels(node->left(), level+1);
-    	sum_levels(node->right(), level+1);
-    	cout<<endl<<"Level: "<<level<<endl;
-    	return level;
+    	return level+sum_levels(node->left(),level+1)+sum_levels(node->right(),level+1);
     }
 
     size_t sum_null_levels() const {
@@ -608,12 +586,8 @@ private:
      */
     size_t sum_null_levels(Node<K, V> *node, size_t level) const {
         // TODO
-    	size_t count;
-    	if(node==NULL){count+=level;}
-    	count+= sum_null_levels(node->left(),level+1);
-    	count+= sum_null_levels(node->right(),level+1);
-    	cout<<endl<<"Null Levels: "<<count<<endl;
-    	return count;
+    	if(node==NULL)return level;
+    	return sum_null_levels(node->left(), level+1) + sum_null_levels(node->right(),level+1);
     }
 };
 
