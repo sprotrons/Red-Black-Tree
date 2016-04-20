@@ -511,8 +511,12 @@ private:
      */
     size_t internal_node_count(Node<K, V> *node) const {
         // TODO
+        size_t count;
     	if(((node->left() == NULL) && (node->right() == NULL)) || (node->parent() == NULL)) { return 0; }
-    	return (1 + internal_node_count(node->left()) + internal_node_count(node->right()));
+    	if((node->left() != NULL) || (node->right() != NULL)) { count++; }
+    	internal_node_count(node->right());
+    	internal_node_count(node->left());
+    	return count;
     }
 
     /**
