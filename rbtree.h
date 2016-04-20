@@ -219,21 +219,26 @@ public:
 		}
 		// TODO
 		cout << "TODO" << endl;
-        cout << "start loop" << endl;
-        while(x != NULL) {
-			y = x;
-			if(z->key() == x->key()) {
-				std::ostringstream ss;
-				ss << x->key();
-				throw tree_exception("Attempt to insert duplicate key '"+ss.str()+"'.");
+		if(root_ == NULL) {
+			root_ = z;
+			z->set_parent(NULL);
+		}
+		else {
+			cout << "start loop" << endl;
+			while(x != NULL) {
+				y = x;
+				if(z->key() == x->key()) {
+					std::ostringstream ss;
+					ss << x->key();
+					throw tree_exception("Attempt to insert duplicate key '"+ss.str()+"'.");
+				}
+				else { x = (z->key() < x->key()) ? x->left() : x->right(); }
 			}
-			else { x = (z->key() < x->key()) ? x->left() : x->right(); }
-        }
-		cout << "set z" << endl;
-		z->set_parent(y);
-		cout << "why..." << endl;
-		if(y->key() < z->key()) { y->set_right(z); }
-		else { y->set_left(z); }
+			// cout << "set z" << endl;
+			z->set_parent(y);
+			if(y->key() < z->key()) { y->set_right(z); }
+			else { y->set_left(z); }
+		}
 		cout << "fix up" << endl;
         insert_fixup(z);
         size_++;
@@ -391,7 +396,7 @@ private:
     	RedBlackNode<K, V> *u;
     	while(z->parent() != NULL && z->parent()->color() == RED) {
     		RedBlackNode<K, V> *g = z->parent()->parent();
-    		//cout << "first conditional" << endl;
+    		cout << "first conditional" << endl;
     		if(g->left() == z->parent()) {
     			if(g->right() != NULL) {
     				u = g->right();
@@ -403,18 +408,20 @@ private:
     				}
     			}
     			else {
-    				//cout << "second" << endl;
+    				cout << "second" << endl;
     				if(z->parent()->right() == z) {
     					z = z->parent();
+    					cout << "rotate left" << endl;
     					left_rotate(z);
     				}
     				z->parent()->set_color(BLACK);
     				g->set_color(RED);
+    				cout << "rotate right" << endl;
     				right_rotate(g);
     			}
     		}
     		else {
-    			//cout << "third" << endl;
+    			cout << "third" << endl;
     			if(g->left() != NULL) {
     				u = g->left();
     				if(u->color() == RED) {
@@ -425,19 +432,21 @@ private:
     				}
     			}
     			else {
-    				//cout << "fourth" << endl;
+    				cout << "fourth" << endl;
     				if(z->parent()->left() == z) {
-    					z = z->parent();
+    					z->set_parent(z);
+    					cout << "rotate right" << endl;
     					right_rotate(z);
     				}
     				z->parent()->set_color(BLACK);
     				g->set_color(RED);
+    				cout << "rotate left" << endl;
     				left_rotate(g);
     			}
     		}
         	// Last line below
     	}
-    	//cout << "exiting fixup" << endl;
+    	cout << "exiting fixup" << endl;
     	root_->set_color(BLACK);
     }
 
