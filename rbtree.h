@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Name        : rbtree.h
- * Author      : 
+ * Author      : Connor Sellar, Tom Halloran
  * Version     : 1.0
- * Date        : 
+ * Date        : 4/20/16
  * Description : Implementation of red-black tree.
- * Pledge      :
+ * Pledge      : I pledge my honor that I have abided by the Stevens Honor System.
  ******************************************************************************/
 #ifndef RBTREE_H_
 #define RBTREE_H_
@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <utility>
 #include <iostream>
+
+using namespace std;
 
 // Forward declaration
 template <typename K, typename V>
@@ -205,7 +207,6 @@ public:
      */
     void insert(const iterator &it, const std::pair<K, V> &key_value) {
     	//cout << "start insert" << endl;
-    	K key = key_value.first;
     	Node<K, V> *x, *y;
     	RedBlackNode<K, V> *z = new RedBlackNode<K, V>(key_value.first, key_value.second);
 		if (it != end()) {
@@ -217,24 +218,23 @@ public:
 			y = NULL;
 		}
 		// TODO
-		//cout << "TODO" << endl;
-        //cout << "start loop" << endl;
+		cout << "TODO" << endl;
+        cout << "start loop" << endl;
         while(x != NULL) {
-        		y = x;
-
-        		if(z->key() == x->key()) {
-        			std::ostringstream ss;
-        			ss << x->key();
-        			throw tree_exception("Attempt to insert duplicat key '"+ss.str()+"'.");
-        		}
-        		else { (x = z->key() < x->key()) ? x->left() : x->right(); }
-        	}
-        	//cout << "set z" << endl;
-        	z->set_parent(y);
-        	if(y->key() < z->key()) { y->set_right(z); }
-        	else { y->set_left(z); }
-
-		//cout << "fixup" << endl;
+			y = x;
+			if(z->key() == x->key()) {
+				std::ostringstream ss;
+				ss << x->key();
+				throw tree_exception("Attempt to insert duplicate key '"+ss.str()+"'.");
+			}
+			else { x = (z->key() < x->key()) ? x->left() : x->right(); }
+        }
+		cout << "set z" << endl;
+		z->set_parent(y);
+		cout << "why..." << endl;
+		if(y->key() < z->key()) { y->set_right(z); }
+		else { y->set_left(z); }
+		cout << "fix up" << endl;
         insert_fixup(z);
         size_++;
     }
@@ -479,7 +479,7 @@ private:
      */
     int height(Node<K, V> *node) const {
         // TODO
-    	if(node=NULL) return 0;
+    	if(node==NULL) { return 0; }
     	return 1+std::max(height(node->left()),height(node->right()));
     }
 
@@ -516,9 +516,7 @@ private:
      */
     int diameter(Node<K, V> *node) const {
         // TODO
-    	if(node==NULL){
-    		return 0;
-    	}
+    	if(node==NULL){ return 0; }
     	return std::max(height(node->left())+ height(node->right()),std::max(diameter(node->left()),diameter(node->right())) );
     }
 
@@ -563,8 +561,8 @@ private:
      */
     size_t sum_levels(Node<K, V> *node, size_t level) const {
         // TODO
-    	if(node==NULL){return 0;}
-    	return level+sum_levels(node->left(),level+1)+sum_levels(node->right(),level+1);
+    	if(node==NULL){ return 0; }
+    	return level + sum_levels(node->left(),level+1) + sum_levels(node->right(),level+1);
     }
 
     size_t sum_null_levels() const {
