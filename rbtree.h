@@ -209,7 +209,7 @@ public:
     	//cout << "start insert" << endl;
     	K key = key_value.first;
     	if(find(key) != end()) {
-    		tree_exception("Warning: Attempt to insert duplicate key : ");
+    		cout << "Warning: Attempt to insert dublicate key: '"<<key<<"'." << endl;
     		return;
     	}
     	Node<K, V> *x, *y;
@@ -511,15 +511,12 @@ private:
      */
     size_t internal_node_count(Node<K, V> *node) const {
         // TODO
-        if( node->parent()== NULL && node->right()== NULL && node->left()==NULL ){
-        	return 0;
+        if(node->parent()==NULL){
+        	return count_interior_nodes(node->left())+count_interior_nodes(node->right());
+        }elif(node->left() != NULL || node->right() != NULL ); {
+        	return count_interior_nodes(node->left())+count_interior_nodes(node->right())+1;
         }
-        if( node->right()==NULL && node->left()==NULL ){
-        	return 0;
-        }
-        else{
-        	return 1+internal_node_count(node->right())+internal_node_count(node->left());
-        }
+
     }
 
     /**
@@ -555,6 +552,7 @@ private:
     }
 
     size_t null_count() const {
+    	cout<<endl<<"Null count: "<<null_count(root_)<<endl;
         return null_count(root_);
     }
 
@@ -587,6 +585,7 @@ private:
     	if(node==NULL){return 0;}
     	sum_levels(node->left(), level+1);
     	sum_levels(node->right(), level+1);
+    	cout<<endl<<"Level: "<<level<<endl;
     	return level;
     }
 
@@ -613,6 +612,7 @@ private:
     	if(node==NULL){count+=level;}
     	count+= sum_null_levels(node->left(),level+1);
     	count+= sum_null_levels(node->right(),level+1);
+    	cout<<endl<<"Null Levels: "<<count<<endl;
     	return count;
     }
 };
