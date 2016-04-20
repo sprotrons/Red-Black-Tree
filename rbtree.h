@@ -206,31 +206,42 @@ public:
      * insert the node. If it == end(), the search starts at the root.
      */
     void insert(const iterator &it, const std::pair<K, V> &key_value) {
+    	//cout << "start insert" << endl;
+    	K key = key_value.first;
+    	if(find(key) != end()) {
+    		tree_exception("Warning: Attempt to insert duplicate key : ");
+    		return;
+    	}
     	Node<K, V> *x, *y;
-        RedBlackNode<K, V> *z = new RedBlackNode<K, V>(key_value.first, key_value.second);
-        if (it != end()) {
-            x = it.node_ptr;
-            y = x->parent();
-        } else {
-            x = root_;
-            y = NULL;
-        }
-        // TODO
-        tree_exception("WARNING");
-        if(root_ == NULL) {
-        	root_ = z;
-        	z->set_parent(NULL);
+    	RedBlackNode<K, V> *z = new RedBlackNode<K, V>(key_value.first, key_value.second);
+    	size_++;
+		if (it != end()) {
+			x = it.node_ptr;
+			y = x->parent();
+		}
+		else {
+			x = root_;
+			y = NULL;
+		}
+		// TODO
+		//cout << "TODO" << endl;
+		if(root_ == NULL) {
+			root_ = z;
+			z->set_parent(NULL);
         }
         else {
+        	//cout << "start loop" << endl;
         	while(x != NULL) {
         		y = x;
         		if(z->key() < x->key()) { x = x->left(); }
         		else { x = x->right(); }
         	}
+        	//cout << "set z" << endl;
         	z->set_parent(y);
         	if(y->key() < z->key()) { y->set_right(z); }
         	else { y->set_left(z); }
         }
+		//cout << "fixup" << endl;
         insert_fixup(z);
     }
 
@@ -238,7 +249,6 @@ public:
      * Inserts a key-value pair into the red-black tree.
      */
     void insert(const K &key, const V &value) {
-    	cout << "here" << endl;
         iterator e = end();
         insert(e, std::pair<K, V>(key, value));
     }
@@ -381,10 +391,12 @@ private:
      * Fixup method described on p. 316 of CLRS.
      */
     void insert_fixup(RedBlackNode<K, V> *z) {
+    	//cout << "starting fix up loop" << endl;
         // TODO
     	RedBlackNode<K, V> *u;
-    	while(z->parent() != NULL || z->parent()->color() == RED) {
+    	while(z->parent() != NULL && z->parent()->color() == RED) {
     		RedBlackNode<K, V> *g = z->parent()->parent();
+    		//cout << "first conditional" << endl;
     		if(g->left() == z->parent()) {
     			if(g->right() != NULL) {
     				u = g->right();
@@ -396,6 +408,7 @@ private:
     				}
     			}
     			else {
+    				//cout << "second" << endl;
     				if(z->parent()->right() == z) {
     					z = z->parent();
     					left_rotate(z);
@@ -406,6 +419,7 @@ private:
     			}
     		}
     		else {
+    			//cout << "third" << endl;
     			if(g->left() != NULL) {
     				u = g->left();
     				if(u->color() == RED) {
@@ -416,6 +430,7 @@ private:
     				}
     			}
     			else {
+    				//cout << "fourth" << endl;
     				if(z->parent()->left() == z) {
     					z = z->parent();
     					right_rotate(z);
@@ -427,6 +442,7 @@ private:
     		}
         	// Last line below
     	}
+    	//cout << "exiting fixup" << endl;
     	root_->set_color(BLACK);
     }
 
@@ -495,7 +511,7 @@ private:
      */
     size_t internal_node_count(Node<K, V> *node) const {
         // TODO
-    	if(node == NULL) { return 0; }
+    	if(((node->left() == NULL) && (node->right() == NULL)) || (node->parent() == NULL)) { return 0; }
     	return 1 + internal_node_count(node->left()) + internal_node_count(node->right());
     }
 
@@ -515,7 +531,7 @@ private:
 		int right_diameter = diameter(node->right());
 		if(left_diameter > right_diameter) { diam = left_diameter; }
 		else { diam = right_diameter; }
-		sum = left_height + right_height;
+		sum = left_height + right_height + 1;
 		if(sum > diam) { return sum; }
 		else { return diam; }
     }
