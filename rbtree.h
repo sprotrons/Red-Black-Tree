@@ -577,10 +577,8 @@ private:
      */
     size_t sum_levels(Node<K, V> *node, size_t level) const {
         // TODO
-    	if(node==NULL) { return; }
-    	sum_levels(node->left(), level+1);
-    	sum_levels(node->right(), level+1);
-    	return level;
+    	if(node==NULL) { return 0; }
+    	return level + sum_levels(node->left(), level-1) + sum_levels(node->right(), level-1);
     }
 
     size_t sum_null_levels() const {
@@ -602,12 +600,8 @@ private:
      */
     size_t sum_null_levels(Node<K, V> *node, size_t level) const {
         // TODO
-        size_t count;
-    	if(node == NULL) { count += level; }
-    	count += sum_null_levels(node->left(), level+1)
-    	count += sum_null_levels(node->right(), level+1)
-    	return count;
-    	}
+    	if(node == NULL) { return level; }
+    	    return sum_null_levels(node->left(), level - 1) + sum_null_levels(node->right(), level - 1);
     }
 };
 
